@@ -107,7 +107,7 @@ context dimension. Performance-optimization benchmarks (PERFOPT-Bench) and why
 raw speedup is an unreliable single-dimension score. Reflexion/self-feedback
 lines: feedback signals exist for correctness, not cost.}
 
-\section{A Measurement Study of Temporal Waste}
+\section{Motivation: Temporal Waste in the Wild}
 \label{sec:measurement}
 
 \subsection{Data and method}
@@ -162,41 +162,32 @@ only.}
 \label{tab:main}
 \end{table}
 
-\textbf{Waste is long-tailed and lethal.} Median waste is 3.7\% of wall-clock
-but the 90th percentile is 34\%; 18 trials (4.1\%, or $\sim$8\% of all
-failures) are \emph{time deaths}: the trial failed at or near its budget with
-more than 40\% of wall-clock in W1--W5. Failed trials waste more than solved
-ones (median 4.3\% vs.\ 2.7\%).
-
-\textbf{The harness's temporal interface shapes waste.} Holding the model
-fixed (GLM-4.7), moving from Terminus~2's declared-duration interface to
-Claude Code's native tool calling drops median waste from 7.2\% to 0.1\%:
-most of the median is mechanically manufactured by forcing blind duration
-guesses. The tail, however, is harness-independent --- Gemini CLI's median is
-0\% yet its p90 reaches 60\%, and it contributes 5 of the 18 time deaths,
-driven by semantic waste (W1/W5) that no interface fix removes.
-
-\textbf{Weak models die of time mismanagement.} Within Terminus~2,
-failed-trial waste medians separate sharply: 2.2--5.6\% for the strongest
-models (GPT-5.3-Codex, Opus 4.6) versus 13.9--15.7\% for Kimi-k2.5 and GLM-5
-(the latter alone accounts for 5 time deaths). Strong models fail on hard
-problems; weaker models fail on the clock.
-
-\textbf{Some tasks are time black holes.} \texttt{fix-ocaml-gc} and
-\texttt{build-pov-ray} produce $>$25\% waste in multiple independent trials
-across agents, suggesting task-level structure (long compiles, slow feedback
-loops) that systematically induces waste --- exactly the structure
-\textsc{RotBench} isolates.
+Four observations motivate the rest of the paper. \textbf{(i)} Waste is
+long-tailed and lethal: median 3.7\% of wall-clock, p90 34\%, and 18 trials
+($\sim$8\% of failures) are \emph{time deaths} --- failed at budget with
+$>$40\% of wall-clock in W1--W5. \textbf{(ii)} The harness's temporal
+interface manufactures the median: holding GLM-4.7 fixed, Terminus~2's
+declared-duration interface yields 7.2\% median waste versus 0.1\% under
+Claude Code's native tool calling. \textbf{(iii)} But no interface fix removes
+the tail: native-tool-calling harnesses still lose 10--70\% of wall-clock to
+\emph{semantic} waste in their worst trials --- Claude Code regenerating a
+million-row test fixture five times, Gemini CLI repeating a 698-second web
+search that had just returned nothing --- and Gemini CLI contributes 5 of the
+18 time deaths. \textbf{(iv)} Weaker models die of the clock, not the task:
+failed-trial waste medians are 2.2--5.6\% for GPT-5.3-Codex and Opus 4.6
+versus 13.9--15.7\% for GLM-5 and Kimi-k2.5. Full per-type and per-task
+analysis appears in Appendix~\todo{ref}.
 
 \section{\tempo{}: Making Iteration Cost Observable}
 \label{sec:tempo}
 
-\todo{Design: harness-level layer that (a) stamps every tool result with
-elapsed wall-clock, (b) surfaces cumulative budget consumed / remaining, (c)
-tracks per-command-template running cost and flags regressions ("this test
-suite has slowed 3x since first run"). Zero model changes; in-context only.
-Ablations: (a) alone vs (a)+(b) vs full. Implementation over Harbor so all
-TB agents inherit it.}
+\todo{THE core section --- harness design reserved for the authors. The
+measurement study above earns exactly one claim: elapsed time must enter the
+observation space, and the design question is how. Candidate ingredients from
+the data (not yet a design): per-tool-result elapsed-time stamps kill W2/W3
+mechanically; per-command-template cost memory addresses W1/W5 (the
+million-row-fixture and repeated-search failures); budget state addresses time
+deaths. Ablation axes and the actual interface are open.}
 
 \section{\textsc{RotBench}: Growth-Driven Developability Decay}
 \label{sec:rotbench}

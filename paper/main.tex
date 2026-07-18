@@ -71,6 +71,16 @@ Human teams eventually refactor because the pain crosses a threshold. An agent
 that cannot observe iteration cost will not only fail to fix such
 \emph{developability decay}; it will happily author the commits that cause it.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.72\linewidth]{figs/fig1_concept_imagegen.png}
+\caption{\textbf{Loop rot.} The agent's edit--build--test loop slows with every
+cycle (arrows thicken clockwise), but elapsed time never enters the agent's
+observation space (struck-out clock): the loop is correctness-supervised and
+time-blind.}
+\label{fig:concept}
+\end{figure}
+
 We make three contributions. First, a \textbf{measurement study}
 (Section~\ref{sec:measurement}): we analyze 500 verified trajectories from the
 public Terminal-Bench~2.0 leaderboard --- 7 models under one harness and one

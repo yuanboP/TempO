@@ -15,12 +15,15 @@
 \maketitle
 
 \begin{abstract}
-Coding agents are correctness-supervised but time-blind: the harness reports
-whether a command succeeded, never how long it took. As a result, agents cannot
-notice that their own edit--build--test loop is slowing down --- they re-run
-90-second test suites after one-line edits, block on waits they sized by
-guesswork, and rebuild environments they already built. We call the resulting
-degradation \emph{loop rot}. We first quantify the problem with a measurement
+Coding agents are supervised on correctness and design consistency but blind
+to the cost of their own working loop: the harness reports whether a command
+succeeded, never how long it took. The asymmetry is not merely an omission ---
+it turns the agent's alignment tendency into negative feedback. As a codebase
+grows, an agent faithfully preserves architectures that are silently
+strangling its own iteration speed, re-runs 90-second test suites after
+one-line edits, and rebuilds environments it already built, until a human
+intervenes with exactly the missing signal: ``this is too slow.'' We call the
+resulting degradation \emph{loop rot}. We first quantify the problem with a measurement
 study of 500 public Terminal-Bench~2.0 leaderboard trajectories across 10
 agent--model combinations: temporal waste is a long-tail phenomenon (median
 3.7\% of wall-clock, 90th percentile 34\%), roughly 8\% of task failures are
@@ -65,11 +68,17 @@ under-waiting (paying an extra model round-trip per ``wait longer'' retry).
 These two mechanical wastes are the most prevalent in our data (30\% and 23\%
 of trajectories).
 
-\textbf{(3) Agents never feel loop rot.} Over the life of a growing codebase,
-the inner development loop --- build, test, codegen --- degrades gradually.
-Human teams eventually refactor because the pain crosses a threshold. An agent
-that cannot observe iteration cost will not only fail to fix such
-\emph{developability decay}; it will happily author the commits that cause it.
+\textbf{(3) Alignment becomes negative feedback.} Over the life of a growing
+codebase, the inner development loop --- build, test, codegen --- degrades
+gradually. A time-blind agent does worse than fail to fix such
+\emph{developability decay}: its supervised preference for design consistency
+actively entrenches it. The existing architecture is ``correct'' --- it passed
+every test, it matches the original design --- so the agent welds each new
+feature onto the slow path, reinforcing it. Human engineers escape this loop
+through a kind of temporal proprioception: they sit through the four-minute
+compile that used to take twenty seconds, and the discomfort funds the
+refactor. The agent never feels it; the human who eventually intervenes is
+supplying, by hand, the missing time gradient.
 
 \begin{figure}[t]
 \centering
